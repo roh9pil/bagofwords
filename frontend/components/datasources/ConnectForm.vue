@@ -35,12 +35,19 @@
             <USelectMenu v-if="authOptions.length > 1" v-model="selectedAuth" :options="authOptions" option-attribute="label" value-attribute="value" @change="handleAuthChange" />
           </div>
 
-          <div v-if="showSystemCredentialFields" v-for="field in credentialFields" :key="field.field_name" class="mb-2" @change="clearTestResult()">
+          <div v-if="showSystemCredentialFields" v-for="field in nonProxyCredentialFields" :key="field.field_name" class="mb-2" @change="clearTestResult()">
             <label :for="field.field_name" class="block text-xs text-gray-700 mb-1">{{ field.title || field.field_name }}</label>
             <input v-if="uiType(field) === 'string'" type="text" v-model="formData.credentials[field.field_name]" :id="field.field_name" class="block w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 text-sm" :placeholder="field.title || field.field_name" />
             <UToggle v-else-if="field.type === 'boolean' || uiType(field) === 'boolean' || uiType(field) === 'toggle'" v-model="formData.credentials[field.field_name]" size="xs" color="blue" />
             <textarea v-else-if="uiType(field) === 'textarea'" v-model="formData.credentials[field.field_name]" :id="field.field_name" class="block w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 text-sm" :placeholder="field.title || field.field_name" rows="3" />
             <input v-else-if="uiType(field) === 'password' || field.type === 'password'" type="password" v-model="formData.credentials[field.field_name]" :id="field.field_name" class="block w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 text-sm" :placeholder="field.title || field.field_name" />
+          </div>
+          <div v-if="showSystemCredentialFields && proxyCredentialFields.length > 0" class="p-3 rounded border mt-4">
+            <div class="text-sm font-medium text-gray-700 mb-2">Proxy Settings</div>
+            <div v-for="field in proxyCredentialFields" :key="field.field_name" class="mb-2" @change="clearTestResult()">
+              <label :for="field.field_name" class="block text-xs text-gray-700 mb-1">{{ field.title || field.field_name }}</label>
+              <input type="text" v-model="formData.credentials[field.field_name]" :id="field.field_name" class="block w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 text-sm" :placeholder="field.title || field.field_name" />
+            </div>
           </div>
           <div v-if="showRequireUserAuth && isCreateMode" class="flex items-center gap-2 mb-2 mt-4">
             <UToggle color="blue" v-model="require_user_auth" @change="clearTestResult()" />
@@ -153,6 +160,14 @@ const credentialFields = computed(() => {
   const credsSchema = active || fields.value?.credentials
   if (!credsSchema?.properties) return [] as any[]
   return Object.entries(credsSchema.properties).map(([field_name, schema]: any) => ({ field_name, ...schema }))
+})
+
+const nonProxyCredentialFields = computed(() => {
+  return credentialFields.value.filter(field => !field.field_name.includes('proxy'))
+})
+
+const proxyCredentialFields = computed(() => {
+  return credentialFields.value.filter(field => field.field_name.includes('proxy'))
 })
 
 const selectedTitle = computed(() => {

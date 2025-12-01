@@ -7,10 +7,15 @@ from app.ai.llm.types import LLMResponse, LLMUsage
 
 
 class Anthropic(LLMClient):
-    def __init__(self, api_key: str, base_url: str = None):
+    def __init__(self, api_key: str, base_url: str = None, http_proxy: str = None, https_proxy: str = None, no_proxy: str = None):
         super().__init__()
-        self.client = AnthropicAPI(api_key=api_key)
-        self.async_client = AsyncAnthropic(api_key=api_key)
+        proxies = {
+            "http://": http_proxy,
+            "https://": https_proxy,
+            "no_proxy": no_proxy,
+        }
+        self.client = AnthropicAPI(api_key=api_key, proxies=proxies)
+        self.async_client = AsyncAnthropic(api_key=api_key, proxies=proxies)
         self.max_tokens = 1024
         self.temperature = 0.3
 

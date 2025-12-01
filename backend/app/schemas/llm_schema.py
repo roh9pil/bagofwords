@@ -63,6 +63,9 @@ class LLMProviderUpdate(BaseModel):
 # Provider-specific Credentials
 class AnthropicCredentials(BaseModel):
     api_key: str
+    http_proxy: Optional[str] = None
+    https_proxy: Optional[str] = None
+    no_proxy: Optional[str] = None
 
 class AnthropicConfig(BaseModel):
     max_tokens: Optional[int] = 4096
@@ -71,6 +74,9 @@ class AnthropicConfig(BaseModel):
 class OpenAICredentials(BaseModel):
     api_key: str
     base_url: Optional[str] = None
+    http_proxy: Optional[str] = None
+    https_proxy: Optional[str] = None
+    no_proxy: Optional[str] = None
 
 class BowCredentials(BaseModel):
     api_key: str
@@ -81,6 +87,9 @@ class OpenAIConfig(BaseModel):
 
 class GoogleCredentials(BaseModel):
     api_key: str
+    http_proxy: Optional[str] = None
+    https_proxy: Optional[str] = None
+    no_proxy: Optional[str] = None
 
 class GoogleConfig(BaseModel):
     max_output_tokens: Optional[int] = 2048
@@ -91,6 +100,9 @@ class GoogleConfig(BaseModel):
 class AzureCredentials(BaseModel):
     api_key: str
     endpoint_url: str
+    http_proxy: Optional[str] = None
+    https_proxy: Optional[str] = None
+    no_proxy: Optional[str] = None
 
 class AzureConfig(BaseModel):
     max_tokens: Optional[int] = 2048

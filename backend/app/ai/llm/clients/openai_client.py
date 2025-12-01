@@ -7,10 +7,15 @@ from app.ai.llm.types import LLMResponse, LLMUsage
 
 
 class OpenAi(LLMClient):
-    def __init__(self, api_key: str, base_url: str = "https://api.openai.com/v1"):
+    def __init__(self, api_key: str, base_url: str = "https://api.openai.com/v1", http_proxy: str = None, https_proxy: str = None, no_proxy: str = None):
         super().__init__()
-        self.client = OpenAI(api_key=api_key, base_url=base_url)
-        self.async_client = AsyncOpenAI(api_key=api_key, base_url=base_url)
+        proxies = {
+            "http://": http_proxy,
+            "https://": https_proxy,
+            "no_proxy": no_proxy,
+        }
+        self.client = OpenAI(api_key=api_key, base_url=base_url, proxies=proxies)
+        self.async_client = AsyncOpenAI(api_key=api_key, base_url=base_url, proxies=proxies)
 
     def inference(self, model_id: str, prompt: str) -> LLMResponse:
         temperature = 1 if model_id == "gpt-5" else 0.3

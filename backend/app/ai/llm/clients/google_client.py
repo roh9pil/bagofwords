@@ -7,9 +7,15 @@ from app.ai.llm.clients.base import LLMClient
 from app.ai.llm.types import LLMResponse, LLMUsage
 
 
+import os
+
 class Google(LLMClient):
-    def __init__(self, api_key: str | None = None):
+    def __init__(self, api_key: str | None = None, http_proxy: str = None, https_proxy: str = None, no_proxy: str = None):
         super().__init__()
+        if http_proxy:
+            os.environ["GENAI_PROXY"] = http_proxy
+        elif https_proxy:
+            os.environ["GENAI_PROXY"] = https_proxy
         self.client = genai.Client(api_key=api_key)
         self.temperature = 0.3
 

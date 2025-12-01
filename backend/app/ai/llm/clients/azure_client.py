@@ -6,19 +6,26 @@ from app.ai.llm.types import LLMResponse, LLMUsage
 
 
 class AzureClient(LLMClient):
-    def __init__(self, api_key: str, endpoint_url: str, api_version: str | None = None):
+    def __init__(self, api_key: str, endpoint_url: str, api_version: str | None = None, http_proxy: str = None, https_proxy: str = None, no_proxy: str = None):
         super().__init__()
         # endpoint_url should be the Azure OpenAI resource endpoint, e.g. https://<resource>.openai.azure.com
         effective_api_version = api_version or "2024-10-21"
+        proxies = {
+            "http://": http_proxy,
+            "https://": https_proxy,
+            "no_proxy": no_proxy,
+        }
         self.client = AzureOpenAI(
             api_key=api_key,
             azure_endpoint=endpoint_url,
             api_version=effective_api_version,
+            proxies=proxies,
         )
         self.async_client = AsyncAzureOpenAI(
             api_key=api_key,
             azure_endpoint=endpoint_url,
             api_version=effective_api_version,
+            proxies=proxies,
         )
 
     def inference(self, model_id: str, prompt: str) -> LLMResponse:

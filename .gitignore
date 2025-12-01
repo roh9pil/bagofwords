@@ -33,3 +33,4 @@ backend/logs
 
 
 *.pyc
+backend/app.db
