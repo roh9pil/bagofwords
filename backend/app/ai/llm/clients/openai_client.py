@@ -14,55 +14,44 @@ class OpenAi(LLMClient):
 
     def inference(self, model_id: str, prompt: str) -> LLMResponse:
         temperature = 1 if model_id == "gpt-5" else 0.3
-
-        chat_completion = self.client.chat.completions.create(
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt.strip(),
-                }
-            ],
+        response = self.client.responses.create(
             model=model_id,
+            input={
+                "type": "text",
+                "content": prompt.strip(),
+                "content_type": "text",
+            },
             temperature=temperature,
         )
-        usage = self._extract_usage(getattr(chat_completion, "usage", None))
+        usage = self._extract_usage(getattr(response, "usage", None))
         self._set_last_usage(usage)
-        content = chat_completion.choices[0].message.content or ""
+        content = response.output_text or ""
         return LLMResponse(text=content, usage=usage)
 
     async def inference_stream(self, model_id: str, prompt: str) -> AsyncGenerator[str, None]:
         temperature = 1 if model_id == "gpt-5" else 0.3
-
-        stream = await self.async_client.chat.completions.create(
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt.strip(),
-                }
-            ],
+        stream = await self.async_client.responses.create(
             model=model_id,
-            temperature=temperature,
+            input={
+                "type": "text",
+                "content": prompt.strip(),
+                "content_type": "text",
+            },
             stream=True,
+            temperature=temperature,
         )
 
         prompt_tokens = 0
         completion_tokens = 0
         async for chunk in stream:
-            if not chunk.choices:
-                usage = self._extract_usage(getattr(chunk, "usage", None))
-                if usage.prompt_tokens or usage.completion_tokens:
-                    prompt_tokens = usage.prompt_tokens or prompt_tokens
-                    completion_tokens = usage.completion_tokens or completion_tokens
-                continue
-
-            content = chunk.choices[0].delta.content
-            if content is not None:
-                yield content
-
             usage = self._extract_usage(getattr(chunk, "usage", None))
             if usage.prompt_tokens or usage.completion_tokens:
                 prompt_tokens = usage.prompt_tokens or prompt_tokens
                 completion_tokens = usage.completion_tokens or completion_tokens
+
+            content = chunk.output_text
+            if content is not None:
+                yield content
 
         self._set_last_usage(
             LLMUsage(
