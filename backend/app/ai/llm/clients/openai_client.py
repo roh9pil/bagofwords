@@ -16,11 +16,7 @@ class OpenAi(LLMClient):
         temperature = 1 if model_id == "gpt-5" else 0.3
         response = self.client.responses.create(
             model=model_id,
-            input={
-                "type": "text",
-                "content": prompt.strip(),
-                "content_type": "text",
-            },
+            input=prompt.strip(),
             temperature=temperature,
         )
         usage = self._extract_usage(getattr(response, "usage", None))
@@ -32,11 +28,7 @@ class OpenAi(LLMClient):
         temperature = 1 if model_id == "gpt-5" else 0.3
         stream = await self.async_client.responses.create(
             model=model_id,
-            input={
-                "type": "text",
-                "content": prompt.strip(),
-                "content_type": "text",
-            },
+            input=prompt.strip(),
             stream=True,
             temperature=temperature,
         )
